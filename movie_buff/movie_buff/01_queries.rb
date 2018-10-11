@@ -6,6 +6,7 @@ def it_was_ok
   # We can use ranges (a..b) inside a where method.
   #
   # Find the id, title, and score of all movies with scores between 2 and 3
+  Movie.select(:id, :title, :score).where(score: 2..3)
 
 end
 
@@ -20,6 +21,27 @@ def harrison_ford
   #
   # Find the id and title of all movies in which Harrison Ford
   # appeared but not as a lead actor
+  Movie.select(:id, :title)
+    .joins(:actors)
+    .where(actors: { name: 'Harrison Ford'})
+    .where(castings: { ord: 1 })
+    # .where('castings.ord != :ord', { ord: 1 })
+    # .where('castings.ord != 1')
+
+
+# .joins(:castings)
+  # SELECT movies.id, movies.title
+  # FROM
+  #   movies
+  # INNER JOIN
+  #   castings ON castings.movie_id = movies.id
+  # INNER JOIN
+  #   actors ON actors.id = castings.actor_id
+  # INNER JOIN
+  #   castings castings_movies ON castings_movies.movie_id = movies.id
+  # WHERE
+  #   actors.name = 'Harrison Ford' AND (castings.ord != 1)"
+
 
 end
 
@@ -38,6 +60,13 @@ def biggest_cast
   # Find the id and title of the 3 movies with the
   # largest casts (i.e most actors)
 
+  Movie
+    .select(:id, :title)
+    .joins(:actors)
+    .group('id')
+    .order('COUNT(movies.id) DESC')
+    .limit(3)
+
 end
 
 def directed_by_one_of(them)
@@ -52,6 +81,23 @@ def directed_by_one_of(them)
   # Movie.where(yr: years)
   #
   # Find the id and title of all the movies directed by one of 'them'.
+
+  Movie
+    .select(:id, :title)
+    .joins(:actors) # <= should be ".joins(:director)"
+    .where(actors: {name: them})
+    # .where(actors: { director_id: )
+    # .where(castings: { ord: 1 })
+
+    # Movie.select(:id, :title).joins(:actors).where(director_id: them).to_sql
+    #
+    # "SELECT
+    #   movies.id, movies.title
+    # FROM
+    #   movies INNER JOIN castings ON castings.movie_id = movies.id
+    # INNER JOIN
+    #   actors ON actors.id = castings.actor_id
+    # WHERE movies.director_id = 0"
 
 end
 
